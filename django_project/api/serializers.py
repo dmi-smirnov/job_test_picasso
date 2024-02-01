@@ -7,3 +7,4 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = '__all__'
+        read_only_fields = ['processed']
