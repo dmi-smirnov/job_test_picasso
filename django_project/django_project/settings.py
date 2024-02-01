@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dwsmvb8fl)b(4#zkv8_#+b%8ws0y$tu$!3q)l3(t_@_vm$1k5v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.getenv('DEBUG'))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(' ')
 
 
 # Application definition
@@ -130,10 +130,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # MEDIA
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
@@ -141,5 +144,8 @@ MEDIA_URL = 'http://127.0.0.1:8000/uploads/'
 
 
 # Celery
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER', 'redis://127.0.0.1:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_BACKEND', 'redis://127.0.0.1:6379/1')
+CELERY_APP_NAME = os.getenv('CELERY_APP_NAME', 'test')
+REDIS_ADDR = os.getenv('REDIS_ADDR', '127.0.0.1')
+REDIS_PORT = '6379'
+CELERY_BROKER_URL = f'redis://{REDIS_ADDR}:{REDIS_PORT}/1'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_ADDR}:{REDIS_PORT}/2'
