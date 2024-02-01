@@ -139,8 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # MEDIA
+WEB_SRV_ADDR = os.getenv('WEB_SRV_ADDR', '127.0.0.1:8000')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
-MEDIA_URL = 'http://127.0.0.1:8000/uploads/'
+MEDIA_URL = f'http://{WEB_SRV_ADDR}/uploads/'
 
 
 # Celery

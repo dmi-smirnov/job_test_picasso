@@ -1,6 +1,7 @@
 volumes:
   pgdata:
   static_files:
+  uploads:
 
 networks:
   net:
@@ -49,6 +50,7 @@ services:
       dockerfile: django_gunicorn.dockerfile
     volumes:
       - static_files:/usr/src/app/static:rw
+      - uploads:/usr/src/app/uploads
     networks:
       - net
     environment:
@@ -63,6 +65,7 @@ services:
       - DB_NAME=${DB_NAME}
       - CELERY_APP_NAME=${CELERY_APP_NAME}
       - REDIS_ADDR=redis
+      - WEB_SRV_ADDR=${WEB_SRV_ADDR}
     depends_on:
       - dbms
 
@@ -71,6 +74,7 @@ services:
     volumes:
       - ./nginx_templates:/etc/nginx/templates:ro
       - static_files:/var/www/static:r
+      - uploads:/var/www/uploads:r
     networks:
       - net
     ports:
