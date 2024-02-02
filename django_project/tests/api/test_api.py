@@ -25,10 +25,24 @@ def api_base_route():
 def files_route(api_base_route):
     return f'{api_base_route}files/'
 
+@pytest.fixture(scope='module')
+def upload_route(api_base_route):
+    return f'{api_base_route}upload/'
+
 @pytest.fixture
 def delete_file(scope='module'):
     def return_function(file: File):
         os.remove(file.file.path)
+    return return_function
+
+@pytest.fixture
+def create_file(scope='module'):
+    def return_function(ext: str) -> str:
+        file_name = f'temp_test_file.{ext}'
+        file_path = os.path.join(os.path.abspath('.'), file_name)
+        with open(file_path, 'w') as file:
+            file.write('temp test file')
+        return file_path
     return return_function
 
 @pytest.mark.django_db
@@ -54,7 +68,7 @@ def test_get_files_list(api_client, file_factory, files_route, delete_file):
         delete_file(file)
 
 @pytest.mark.django_db
-def test_get_file_by_id(api_client, file_factory, files_route):
+def test_get_file_by_id(api_client, file_factory, files_route, delete_file):
     # Arrange
     file = file_factory(_create_files=True)
 
@@ -75,4 +89,35 @@ def test_get_file_by_id(api_client, file_factory, files_route):
 
     # Deleting files
     delete_file(file)
+
+@pytest.mark.parametrize(
+    'file_ext, file_type, http_status_code',
+    [
+        (File.VALID_FILES_EXTENSIONS[File.FileTypeChoices.IMG][0],
+         File.FileTypeChoices.IMG, http_status.HTTP_201_CREATED),
+        ('xxx',
+         File.FileTypeChoices.IMG, http_status.HTTP_400_BAD_REQUEST),
+    ]
+)
+@pytest.mark.django_db
+def test_post_file(api_client, upload_route, create_file, file_ext, file_type,
+                   http_status_code):
+    # Arrange
+    file_path = create_file(ext=file_ext)
+
+    # Act
+    with open(file_path) as file:
+        resp = api_client.post(
+            upload_route,
+            data={
+                'file': file,
+                'type': file_type
+            }
+
+        )
     
+    # Assert
+    assert resp.status_code == http_status_code
+
+    # Deleting files
+    os.remove(file_path)
