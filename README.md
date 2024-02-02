@@ -37,3 +37,20 @@ WEB_SRV_ADDR='...'
 ```bash
 sudo docker compose up -d
 ```
+
+## Тестирование приложения
+- После запуска контейнеров выполнить из директории проекта:
+```bash
+sudo docker compose ps
+```
+- Скопировать имя контейнера для сервиса `django_gunicorn`
+- Подключиться к контейнеру, выполнив из директории проекта:
+```bash
+sudo docker exec -it container_name bash
+```
+- В контейнере выполнить:
+```bash
+pip install -r requirements_tests.txt
+pytest
+```
+
