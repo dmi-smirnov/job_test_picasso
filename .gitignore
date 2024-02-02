@@ -4,3 +4,4 @@ __pycache__
 uploads/
 migrations/
 /.env
+test_docker-compose.yml

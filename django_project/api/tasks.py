@@ -11,10 +11,32 @@ def process_file(file_id: int):
     except File.DoesNotExist:
         return False
 
-    # File processing
-    time.sleep(10)
+    if orm_file.type == File.FileTypeChoices.NA:
+        process_na_file(orm_file)
+    elif orm_file.type == File.FileTypeChoices.IMG:
+        process_image_file(orm_file)
+    elif orm_file.type == File.FileTypeChoices.TXT:
+        process_text_file(orm_file)
+    elif orm_file.type == File.FileTypeChoices.PDF:
+        process_pdf_file(orm_file)
 
     orm_file.processed = True
     orm_file.save()
 
     return True
+
+def process_na_file(orm_file: File):
+    # File processing
+    time.sleep(10)
+
+def process_image_file(orm_file: File):
+    # File processing
+    time.sleep(10)
+
+def process_text_file(orm_file: File):
+    # File processing
+    time.sleep(10)
+
+def process_pdf_file(orm_file: File):
+    # File processing
+    time.sleep(10)
