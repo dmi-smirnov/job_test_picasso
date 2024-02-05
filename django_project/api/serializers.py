@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from api.models import File
-from django.conf import settings
 
 
 class FileSerializer(serializers.ModelSerializer):
