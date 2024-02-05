@@ -1,0 +1,78 @@
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  net:
+
+services:
+  redis:
+    image: redis
+    networks:
+      - net
+
+  celery:
+    build:
+      context: .
+      dockerfile: celery.dockerfile
+    networks:
+      - net
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DB_ENGINE=${DB_ENGINE}
+      - DB_HOST=dbms
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_NAME=${TEST_DB_NAME}
+      - CELERY_APP_NAME=${CELERY_APP_NAME}
+      - REDIS_ADDR=redis
+    command: celery --app django_project worker -l info
+    depends_on:
+      - redis
+
+  dbms:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data:rw
+    networks:
+      - net
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PWD}
+      - POSTGRES_DB=${DB_NAME}
+
+  django_pytest:
+    build:
+      context: .
+      dockerfile: django_gunicorn.dockerfile
+    volumes:
+      - uploads:/usr/src/app/uploads
+    networks:
+      - net
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DB_ENGINE=${DB_ENGINE}
+      - DB_HOST=dbms
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_NAME=${DB_NAME}
+      - CELERY_APP_NAME=${CELERY_APP_NAME}
+      - REDIS_ADDR=redis
+      - WEB_SRV_ADDR=${WEB_SRV_ADDR}
+    command: >
+      sh -c
+      '
+      python manage.py makemigrations api
+      && python manage.py migrate
+      && python manage.py collectstatic --noinput
+      && pip install -r requirements_tests.txt
+      && pytest
+      '
+    depends_on:
+      - dbms

@@ -16,6 +16,7 @@ DB_PORT='5432'
 DB_USER=${PROJECT_NAME}
 DB_PWD='...'
 DB_NAME=${PROJECT_NAME}
+TEST_DB_NAME=test_${PROJECT_NAME}
 
 HTTP_SRV_ADDR_PORT='127.0.0.1:80'
 WEB_SRV_ADDR='...'
@@ -39,18 +40,8 @@ sudo docker compose up -d
 ```
 
 ## Тестирование приложения
-- После запуска контейнеров выполнить из директории проекта:
+Из директории проекта выполнить:
 ```bash
-sudo docker compose ps
-```
-- Скопировать имя контейнера для сервиса `django_gunicorn`
-- Подключиться к контейнеру, выполнив из директории проекта:
-```bash
-sudo docker exec -it container_name bash
-```
-- В контейнере выполнить:
-```bash
-pip install -r requirements_tests.txt
-pytest
+sudo docker compose -f docker-compose_tests.yml up
 ```
 
