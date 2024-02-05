@@ -6,10 +6,7 @@ from api.models import File
 
 @celery_shared_task
 def process_file(file_id: int):
-    try:
-        orm_file = File.objects.get(id=file_id)
-    except File.DoesNotExist:
-        return False
+    orm_file = File.objects.get(id=file_id)
 
     if orm_file.type == File.FileTypeChoices.NA:
         process_na_file(orm_file)
