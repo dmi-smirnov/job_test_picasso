@@ -6,4 +6,4 @@ COPY ./django_project .
 
 RUN pip install -r requirements_celery.txt
 
-CMD celery --app django_project worker
+# CMD celery --app django_project worker -l info

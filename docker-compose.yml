@@ -30,6 +30,7 @@ services:
       - DB_NAME=${DB_NAME}
       - CELERY_APP_NAME=${CELERY_APP_NAME}
       - REDIS_ADDR=redis
+    command: celery --app django_project worker -l info
     depends_on:
       - redis
 
@@ -66,6 +67,14 @@ services:
       - CELERY_APP_NAME=${CELERY_APP_NAME}
       - REDIS_ADDR=redis
       - WEB_SRV_ADDR=${WEB_SRV_ADDR}
+    command: >
+      sh -c
+      '
+      python manage.py makemigrations api
+      && python manage.py migrate
+      && python manage.py collectstatic --noinput
+      && gunicorn django_project.wsgi -b 0.0.0.0:80
+      '
     depends_on:
       - dbms
 
