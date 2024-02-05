@@ -1,2 +1,2 @@
 [run]
-omit=tests/*,manage.py,django_project/*
+omit=tests/*,manage.py,django_project/*,api/migrations/*
