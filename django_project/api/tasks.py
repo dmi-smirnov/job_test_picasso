@@ -27,16 +27,16 @@ def process_file(file_id: int):
 
 def process_na_file(orm_file: File):
     # File processing
-    time.sleep(10)
+    time.sleep(5)
 
 def process_image_file(orm_file: File):
     # File processing
-    time.sleep(10)
+    time.sleep(5)
 
 def process_text_file(orm_file: File):
     # File processing
-    time.sleep(10)
+    time.sleep(5)
 
 def process_pdf_file(orm_file: File):
     # File processing
-    time.sleep(10)
+    time.sleep(5)
