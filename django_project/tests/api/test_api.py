@@ -1,4 +1,5 @@
 import os
+import time
 import pytest
 from rest_framework import status as http_status
 from rest_framework.test import APIClient
@@ -118,6 +119,48 @@ def test_post_file(api_client, upload_route, create_file, file_ext, file_type,
     
     # Assert
     assert resp.status_code == http_status_code
+
+    # Deleting files
+    os.remove(file_path)
+
+@pytest.mark.parametrize(
+    'file_ext, file_type, check_delay_sec, checks_max',
+    [
+        ('xxx',
+         File.FileTypeChoices.NA, 1, 7),
+        (File.VALID_FILES_EXTENSIONS[File.FileTypeChoices.IMG][0],
+         File.FileTypeChoices.IMG, 1, 7),
+        (File.VALID_FILES_EXTENSIONS[File.FileTypeChoices.TXT][0],
+         File.FileTypeChoices.TXT, 1, 7),
+        (File.VALID_FILES_EXTENSIONS[File.FileTypeChoices.PDF][0],
+         File.FileTypeChoices.PDF, 1, 7),
+    ]
+)
+@pytest.mark.django_db(transaction=True)
+def test_process_file(api_client, upload_route, create_file, file_ext,
+                      file_type, check_delay_sec, checks_max):
+    # Arrange
+    file_path = create_file(ext=file_ext)
+
+    # Act
+    with open(file_path) as file:
+        resp = api_client.post(
+            upload_route,
+            data={
+                'file': file,
+                'type': file_type
+            }
+        )
+
+    # Assert
+    assert resp.status_code == http_status.HTTP_201_CREATED
+
+    file_id = resp.data['id']
+    checks_count = 0
+    while File.objects.get(id=file_id).processed != True:
+        checks_count += 1
+        assert checks_count < checks_max
+        time.sleep(check_delay_sec)
 
     # Deleting files
     os.remove(file_path)
