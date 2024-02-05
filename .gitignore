@@ -6,3 +6,4 @@ migrations/
 /.env
 test_docker-compose.yml
 .vscode/
+.coverage
