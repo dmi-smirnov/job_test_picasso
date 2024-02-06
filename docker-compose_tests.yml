@@ -10,6 +10,10 @@ services:
     image: redis
     networks:
       - net
+    healthcheck:
+      test: redis-cli ping
+      interval: 2s
+      timeout: 5s
 
   celery:
     build:
@@ -31,7 +35,10 @@ services:
       - REDIS_ADDR=redis
     command: celery --app django_project worker -l info
     depends_on:
-      - redis
+      dbms:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   dbms:
     image: postgres
@@ -43,6 +50,10 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PWD}
       - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: pg_isready -U ${DB_USER}
+      interval: 2s
+      timeout: 5s
 
   django_pytest:
     build:
@@ -75,4 +86,7 @@ services:
       && pytest --cov=.
       '
     depends_on:
-      - dbms
+      dbms:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

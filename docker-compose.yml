@@ -11,6 +11,10 @@ services:
     image: redis
     networks:
       - net
+    healthcheck:
+      test: redis-cli ping
+      interval: 2s
+      timeout: 5s
 
   celery:
     build:
@@ -32,8 +36,11 @@ services:
       - REDIS_ADDR=redis
     command: celery --app django_project worker -l info
     depends_on:
-      - redis
-
+      dbms:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+        
   dbms:
     image: postgres
     volumes:
@@ -44,6 +51,10 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PWD}
       - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: pg_isready -U ${DB_USER}
+      interval: 2s
+      timeout: 5s
 
   django_gunicorn:
     build:
@@ -76,7 +87,10 @@ services:
       && gunicorn django_project.wsgi -b 0.0.0.0:80
       '
     depends_on:
-      - dbms
+      dbms:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   nginx:
     image: nginx
