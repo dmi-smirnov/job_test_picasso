@@ -8,7 +8,7 @@ networks:
 
 services:
   redis:
-    image: redis
+    image: redis:7.2.4
     networks:
       - net
     healthcheck:
@@ -42,7 +42,7 @@ services:
         condition: service_healthy
         
   dbms:
-    image: postgres
+    image: postgres:16.1
     volumes:
       - pgdata:/var/lib/postgresql/data:rw
     networks:
@@ -93,7 +93,7 @@ services:
         condition: service_healthy
 
   nginx:
-    image: nginx
+    image: nginx:1.25.3
     volumes:
       - ./nginx_templates:/etc/nginx/templates:ro
       - static_files:/var/www/static:r

@@ -7,7 +7,7 @@ networks:
 
 services:
   redis:
-    image: redis
+    image: redis:7.2.4
     networks:
       - net
     healthcheck:
@@ -41,7 +41,7 @@ services:
         condition: service_healthy
 
   dbms:
-    image: postgres
+    image: postgres:16.1
     volumes:
       - pgdata:/var/lib/postgresql/data:rw
     networks:
